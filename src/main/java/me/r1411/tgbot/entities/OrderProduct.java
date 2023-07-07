@@ -17,13 +17,13 @@ public class OrderProduct {
     /**
      * Заказ клиента
      */
-    @ManyToOne(optional = false)
+    @ManyToOne
     private ClientOrder clientOrder;
 
     /**
      * Товар в заказе
      */
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Product product;
 
     /**

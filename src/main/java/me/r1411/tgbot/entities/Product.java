@@ -18,7 +18,7 @@ public class Product {
     /**
      * Категория товара
      */
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Category category;
 
     /**

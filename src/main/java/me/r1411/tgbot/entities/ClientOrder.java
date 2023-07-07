@@ -18,7 +18,7 @@ public class ClientOrder {
     /**
      * Клиент, сделавший заказ
      */
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Client client;
 
     /**
