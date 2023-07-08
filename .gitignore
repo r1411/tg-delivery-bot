@@ -62,3 +62,7 @@ build/
 .mvn/
 mvnw
 
+# H2 database files
+*.mv.db
+*.lock.db
+*.trace.db

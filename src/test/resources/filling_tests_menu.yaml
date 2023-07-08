@@ -1,0 +1,160 @@
+- name: Пицца
+  products:
+    - name: Пепперони
+      description: Идеальное блюдо для небольшой компании
+      price: 499
+    - name: Маргарита
+      description: Идеальное блюдо для небольшой компании
+      price: 389
+    - name: Гавайская пицца
+      description: Блюдо для небольшой компании
+      price: 439
+
+- name: Роллы
+  products:
+    - name: Ролл Саваяки
+      description: Создай пикантное настроение!
+      price: 263
+    - name: Ролл Вега
+      description: Только свежесть!
+      price: 347
+    - name: Ролл Синай
+      description: Дуэт лосося и тунца
+      price: 495
+  subcategories:
+    - name: Классические роллы
+      products:
+        - name: Ролл Тунец
+          description: Максимум белка в одной порции!
+          price: 225
+        - name: Ролл Креветка
+          description: По-королевски вкусно!
+          price: 215
+        - name: Ролл Огурец
+          description: Ничего лишнего!
+          price: 115
+    - name: Запеченные роллы
+      products:
+        - name: Запеченный ролл Ями
+          description: Начни открывать новые вкусы сегодня!
+          price: 337
+        - name: Запеченный ролл Крейзи Чикен
+          description: Улетная копченая курочка
+          price: 327.1
+        - name: Запеченный ролл Луи Креветтон
+          description: Попробуй вкус с брендовым стилем
+          price: 445.2
+    - name: Сладкие роллы
+      products:
+        - name: Сладкий ролл Сумо-Сан
+          description: Идеальный нежный лосось
+          price: 457
+        - name: Сладкий ролл Чикен Маки
+          description: Идеальный нежный лосось
+          price: 335
+        - name: Сладкий ролл Орео
+          description: Отличный выбор
+          price: 345
+    - name: Наборы
+      products:
+        - name: Сет Hot
+          description: Горячий сет с запеченными роллами
+          price: 917
+        - name: Сет Sorry бабушка
+          description: Большой сет для большой компании
+          price: 1997
+        - name: Сет Все включено
+          description: Сет из самых популярных роллов
+          price: 1597
+
+- name: Бургеры
+  products:
+    - name: Барселона бургер
+      description: Сочный бифштекс из натуральной говядины
+      price: 239
+    - name: Фиш бургер
+      description: Два кусочка филе рыбы под нежной булкой
+      price: 221
+    - name: Бургер Премьер
+      description: Сочная котлета в хрустящей панировке
+      price: 159
+  subcategories:
+    - name: Классические бургеры
+      products:
+        - name: Бургер Биг Тейсти
+          description: Большой и вкусный
+          price: 512
+        - name: Бургер Мид Тейсти
+          description: Средний и вкусный
+          price: 256
+        - name: Бургер Смол Тейсти
+          description: Маленький и вкусный
+          price: 128
+    - name: Острые бургеры
+      products:
+        - name: Бургер Чикен Шеф
+          description: Острая и хустящая курица!
+          price: 333
+        - name: Бургер Маэстро
+          description: Очень острая и хрустящая курица!
+          price: 444
+        - name: Бургер Мекс
+          description: Самая острая и хрустящая курица!
+          price: 555
+
+- name: Напитки
+  products:
+    - name: Зеленый чай
+      description: Приятный горячий напиток
+      price: 100
+    - name: Черный чай
+      description: Приятный горячий напиток
+      price: 100
+    - name: Ванильный молочный коктейль
+      description: Охладись в жаркую погоду!
+      price: 170
+  subcategories:
+    - name: Газированные напитки
+      products:
+        - name: Pepsi-Cola
+          description: Кола с пепсикольным вкусом
+          price: 99
+        - name: Клубничный лимонад
+          description: Приятный летний напиток
+          price: 125
+        - name: Доктор перец
+          description: Отлично уталит жажду
+          price: 123
+    - name: Энергетические напитки
+      products:
+        - name: Red Bull
+          description: Энергетик №1
+          price: 111
+        - name: Orange Bull
+          description: Энергетик №2
+          price: 112
+        - name: Green Bull
+          description: Энергетик №3
+          price: 113
+    - name: Соки
+      products:
+        - name: Сок J7 яблочный
+          description: Любимый вкус
+          price: 80
+        - name: Сок Добрый апельсин
+          description: Любимый вкус
+          price: 85
+        - name: Сок Любимый груша
+          description: Любимый вкус
+          price: 90
+    - name: Другие
+      products:
+        - name: Кумыс
+          description: Очень хороший!
+          price: 80
+        - name: Клубничный компот
+          description: Уталяет жажду
+          price: 99
+        - name: Квас Попивайкин
+          description: Лучше нет!
+          price: 88
