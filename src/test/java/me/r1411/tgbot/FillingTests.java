@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,30 +34,29 @@ public class FillingTests {
     void createCategories() throws FileNotFoundException {
         File categoriesFile = new File("src/test/resources/filling_tests_categories.yaml");
         Yaml yaml = new Yaml();
-        List<Map<String, String>> categoryEntries = yaml.load(new FileInputStream(categoriesFile));
+        List<Map<String, Object>> categoryEntries = yaml.load(new FileInputStream(categoriesFile));
+        List<Category> categories = parseCategoriesRecursively(categoryEntries, null, new ArrayList<>());
 
-        // Сначала создаем корневые категории
-        List<Category> rootCategories = categoryEntries.stream()
-                .filter(entry -> !entry.containsKey("parent"))
-                .map(entry -> {
-                    Category cat = new Category();
-                    cat.setName(entry.get("name"));
-                    return cat;
-                }).toList();
+        categoryRepository.saveAll(categories);
+    }
 
-        categoryRepository.saveAll(rootCategories);
 
-        // Теперь создаем подкатегории
-        List<Category> subCategories = categoryEntries.stream()
-                .filter(entry -> entry.containsKey("parent"))
-                .map(entry -> {
-                    Category cat = new Category();
-                    cat.setName(entry.get("name"));
-                    cat.setParent(categoryRepository.findByName(entry.get("parent")).orElseThrow());
-                    return cat;
-                }).toList();
+    private List<Category> parseCategoriesRecursively(List<Map<String, Object>> categoryEntries, Category parent, List<Category> accumulator) {
+        for (Map<String, Object> categoryEntry : categoryEntries) {
+            Category category = new Category();
+            category.setName(categoryEntry.get("name").toString());
+            if (parent != null)
+                category.setParent(parent);
 
-        categoryRepository.saveAll(subCategories);
+            accumulator.add(category);
+
+            if (categoryEntry.containsKey("subcategories")) {
+                List<Map<String, Object>> subs = (List<Map<String, Object>>) categoryEntry.get("subcategories");
+                parseCategoriesRecursively(subs, category, accumulator);
+            }
+        }
+
+        return accumulator;
     }
 
     @Test
