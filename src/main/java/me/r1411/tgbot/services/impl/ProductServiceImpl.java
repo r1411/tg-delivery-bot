@@ -1,6 +1,7 @@
 package me.r1411.tgbot.services.impl;
 
 import me.r1411.tgbot.entities.Product;
+import me.r1411.tgbot.repositories.ProductCriteriaRepository;
 import me.r1411.tgbot.repositories.ProductRepository;
 import me.r1411.tgbot.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,20 +10,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
-    @Autowired
-    public ProductServiceImpl(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
+    private final ProductCriteriaRepository productCriteriaRepository;
 
-    @Override
-    public List<Product> getProductsByCategoryId(Long id) {
-        return productRepository.findAllByCategoryId(id);
+    @Autowired
+    public ProductServiceImpl(ProductRepository productRepository, ProductCriteriaRepository productCriteriaRepository) {
+        this.productRepository = productRepository;
+        this.productCriteriaRepository = productCriteriaRepository;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> searchProductsByName(String name) {
-        return productRepository.findAllByNameContainingIgnoreCase(name);
+    public List<Product> searchProductsByNameAndCategory(Optional<String> name, Optional<Long> categoryId) {
+        return productCriteriaRepository.findByNameAndCategory(name, categoryId);
     }
 }

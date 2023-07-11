@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/products")
@@ -20,18 +21,13 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping(value = "/search", params = "categoryId")
-    public List<Product> searchProducts(@RequestParam Long categoryId) {
-        return productService.getProductsByCategoryId(categoryId);
-    }
-
     @GetMapping("/popular")
     public List<Product> getPopular(@RequestParam Integer limit) {
         return productService.getTopPopularProducts(limit);
     }
 
-    @GetMapping(value = "/search", params = "name")
-    public List<Product> searchByName(@RequestParam String name) {
-        return productService.searchProductsByName(name);
+    @GetMapping("/search")
+    public List<Product> searchByName(@RequestParam Optional<String> name, @RequestParam Optional<Long> categoryId) {
+        return productService.searchProductsByNameAndCategory(name, categoryId);
     }
 }

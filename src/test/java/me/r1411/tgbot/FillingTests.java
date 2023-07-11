@@ -20,24 +20,20 @@ import java.util.Map;
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FillingTests {
-    private final CategoryRepository categoryRepository;
-
-    private final ProductRepository productRepository;
-
-    private final ClientRepository clientRepository;
-
-    private final ClientOrderRepository clientOrderRepository;
-
-    private final OrderProductRepository orderProductRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
-    public FillingTests(CategoryRepository categoryRepository, ProductRepository productRepository, ClientRepository clientRepository, ClientOrderRepository clientOrderRepository, OrderProductRepository orderProductRepository) {
-        this.categoryRepository = categoryRepository;
-        this.productRepository = productRepository;
-        this.clientRepository = clientRepository;
-        this.clientOrderRepository = clientOrderRepository;
-        this.orderProductRepository = orderProductRepository;
-    }
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private ClientOrderRepository clientOrderRepository;
+
+    @Autowired
+    private OrderProductRepository orderProductRepository;
 
     @Test
     @Order(1)

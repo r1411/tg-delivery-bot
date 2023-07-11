@@ -3,14 +3,9 @@ package me.r1411.tgbot.services;
 import me.r1411.tgbot.entities.Product;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductService {
-    /**
-     * Получить список товаров в категории
-     * @param id идентификатор категории
-     */
-    List<Product> getProductsByCategoryId(Long id);
-
     /**
      * Получить список всех товаров во всех заказах клиента
      * @param id идентификатор клиента
@@ -25,8 +20,9 @@ public interface ProductService {
     List<Product> getTopPopularProducts(Integer limit);
 
     /**
-     * Найти все продукты по подстроке названия
-     * @param name подстрока названия продукта
+     * Найти товары по части названия, ID категории, либо по двум параметрам сразу
+     * @param name       Подстрока названия
+     * @param categoryId ID категории
      */
-    List<Product> searchProductsByName(String name);
+    List<Product> searchProductsByNameAndCategory(Optional<String> name, Optional<Long> categoryId);
 }
