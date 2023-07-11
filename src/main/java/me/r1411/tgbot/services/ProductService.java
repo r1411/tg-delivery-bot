@@ -3,7 +3,6 @@ package me.r1411.tgbot.services;
 import me.r1411.tgbot.entities.Product;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ProductService {
     /**
@@ -24,5 +23,5 @@ public interface ProductService {
      * @param name       Подстрока названия
      * @param categoryId ID категории
      */
-    List<Product> searchProducts(Optional<String> name, Optional<Long> categoryId);
+    List<Product> searchProducts(String name, Long categoryId);
 }

@@ -13,7 +13,7 @@ import java.util.List;
  * Репозиторий для сущностей Товар
  */
 @RepositoryRestResource(collectionResourceRel = "products", path = "products")
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, ProductCriteriaRepository {
     /**
      * Получить все товары в категории
      * @param id ID категории

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/products")
@@ -27,7 +26,9 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public List<Product> searchProducts(@RequestParam Optional<String> name, @RequestParam Optional<Long> categoryId) {
+    public List<Product> searchProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId) {
         return productService.searchProducts(name, categoryId);
     }
 }

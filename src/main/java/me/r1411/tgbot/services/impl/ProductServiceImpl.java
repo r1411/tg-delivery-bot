@@ -1,7 +1,6 @@
 package me.r1411.tgbot.services.impl;
 
 import me.r1411.tgbot.entities.Product;
-import me.r1411.tgbot.repositories.ProductCriteriaRepository;
 import me.r1411.tgbot.repositories.ProductRepository;
 import me.r1411.tgbot.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,19 +9,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
-    private final ProductCriteriaRepository productCriteriaRepository;
-
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, ProductCriteriaRepository productCriteriaRepository) {
+    public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.productCriteriaRepository = productCriteriaRepository;
     }
 
     @Override
@@ -36,7 +31,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> searchProducts(Optional<String> name, Optional<Long> categoryId) {
-        return productCriteriaRepository.search(name, categoryId);
+    public List<Product> searchProducts(String name, Long categoryId) {
+        return productRepository.search(name, categoryId);
     }
 }
