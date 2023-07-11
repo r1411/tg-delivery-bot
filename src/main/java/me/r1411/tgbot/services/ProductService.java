@@ -1,6 +1,7 @@
 package me.r1411.tgbot.services;
 
 import me.r1411.tgbot.entities.Product;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -23,5 +24,5 @@ public interface ProductService {
      * @param name       Подстрока названия
      * @param categoryId ID категории
      */
-    List<Product> searchProducts(String name, Long categoryId);
+    List<Product> searchProducts(@Nullable String name, @Nullable Long categoryId);
 }

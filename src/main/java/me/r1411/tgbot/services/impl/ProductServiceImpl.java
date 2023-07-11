@@ -5,6 +5,7 @@ import me.r1411.tgbot.repositories.ProductRepository;
 import me.r1411.tgbot.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> searchProducts(String name, Long categoryId) {
+    public List<Product> searchProducts(@Nullable String name, @Nullable Long categoryId) {
         return productRepository.search(name, categoryId);
     }
 }
