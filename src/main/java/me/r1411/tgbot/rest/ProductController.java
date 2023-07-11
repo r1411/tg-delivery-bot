@@ -27,7 +27,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public List<Product> searchByName(@RequestParam Optional<String> name, @RequestParam Optional<Long> categoryId) {
+    public List<Product> searchByNameAndCategory(@RequestParam Optional<String> name, @RequestParam Optional<Long> categoryId) {
         return productService.searchProductsByNameAndCategory(name, categoryId);
     }
 }
