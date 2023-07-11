@@ -1,10 +1,11 @@
 package me.r1411.tgbot;
 
-import me.r1411.tgbot.entities.Category;
-import me.r1411.tgbot.entities.Product;
-import me.r1411.tgbot.repositories.CategoryRepository;
-import me.r1411.tgbot.repositories.ProductRepository;
+import me.r1411.tgbot.entities.*;
+import me.r1411.tgbot.repositories.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.yaml.snakeyaml.Yaml;
@@ -17,14 +18,29 @@ import java.util.List;
 import java.util.Map;
 
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FillingTests {
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
+
+    private final ProductRepository productRepository;
+
+    private final ClientRepository clientRepository;
+
+    private final ClientOrderRepository clientOrderRepository;
+
+    private final OrderProductRepository orderProductRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    public FillingTests(CategoryRepository categoryRepository, ProductRepository productRepository, ClientRepository clientRepository, ClientOrderRepository clientOrderRepository, OrderProductRepository orderProductRepository) {
+        this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
+        this.clientRepository = clientRepository;
+        this.clientOrderRepository = clientOrderRepository;
+        this.orderProductRepository = orderProductRepository;
+    }
 
     @Test
+    @Order(1)
     void createMenu() throws FileNotFoundException {
         File categoriesFile = new File("src/test/resources/filling_tests_menu.yaml");
         Yaml yaml = new Yaml();
@@ -59,6 +75,47 @@ public class FillingTests {
                 List<Map<String, Object>> subs = (List<Map<String, Object>>) categoryEntry.get("subcategories");
                 parseMenuRecursively(subs, category);
             }
+        }
+    }
+
+    @Test
+    @Order(2)
+    public void createClientAndOrders() throws FileNotFoundException {
+        File clientsFile = new File("src/test/resources/filling_tests_clients_and_orders.yaml");
+        Yaml yaml = new Yaml();
+        List<Map<String, Object>> clientEntries = yaml.load(new FileInputStream(clientsFile));
+        clientEntries.forEach(this::saveClientWithOrders);
+    }
+
+    private void saveClientWithOrders(Map<String, Object> clientEntry) {
+        Client client = new Client();
+        client.setFullName(clientEntry.get("fullName").toString());
+        client.setAddress(clientEntry.get("address").toString());
+        client.setPhoneNumber(clientEntry.get("phoneNumber").toString());
+        client.setExternalId(((Number) clientEntry.get("externalId")).longValue());
+        clientRepository.save(client);
+
+        List<Map<String, Object>> clientOrderEntries = (List<Map<String, Object>>) clientEntry.get("orders");
+        for (Map<String, Object> orderEntry : clientOrderEntries) {
+            ClientOrder clientOrder = new ClientOrder();
+            clientOrder.setClient(client);
+            clientOrder.setStatus((Integer) orderEntry.get("status"));
+            clientOrder.setTotal(BigDecimal.ZERO);
+            List<Map<String, Object>> orderProductEntries = (List<Map<String, Object>>) orderEntry.get("products");
+            List<OrderProduct> orderProducts = orderProductEntries.stream().map(orderProductEntry -> {
+                OrderProduct orderProduct = new OrderProduct();
+                orderProduct.setClientOrder(clientOrder);
+                orderProduct.setCountProduct((Integer) orderProductEntry.get("count"));
+                Product product = productRepository.findById(((Number) orderProductEntry.get("id")).longValue()).orElseThrow();
+                orderProduct.setProduct(product);
+                return orderProduct;
+            }).toList();
+            BigDecimal total = orderProducts.stream()
+                    .map(op -> op.getProduct().getPrice())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            clientOrder.setTotal(total);
+            clientOrderRepository.save(clientOrder);
+            orderProductRepository.saveAll(orderProducts);
         }
     }
 }
