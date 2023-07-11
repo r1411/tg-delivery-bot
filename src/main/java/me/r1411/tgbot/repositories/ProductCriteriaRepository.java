@@ -28,7 +28,7 @@ public class ProductCriteriaRepository {
      * @param name       Подстрока названия
      * @param categoryId ID категории
      */
-    public List<Product> findByNameAndCategory(Optional<String> name, Optional<Long> categoryId) {
+    public List<Product> search(Optional<String> name, Optional<Long> categoryId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Product> query = cb.createQuery(Product.class);
         Root<Product> product = query.from(Product.class);

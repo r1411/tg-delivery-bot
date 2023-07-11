@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> searchProductsByNameAndCategory(Optional<String> name, Optional<Long> categoryId) {
-        return productCriteriaRepository.findByNameAndCategory(name, categoryId);
+    public List<Product> searchProducts(Optional<String> name, Optional<Long> categoryId) {
+        return productCriteriaRepository.search(name, categoryId);
     }
 }

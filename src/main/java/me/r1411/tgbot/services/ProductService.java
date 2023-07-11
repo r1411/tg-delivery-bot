@@ -24,5 +24,5 @@ public interface ProductService {
      * @param name       Подстрока названия
      * @param categoryId ID категории
      */
-    List<Product> searchProductsByNameAndCategory(Optional<String> name, Optional<Long> categoryId);
+    List<Product> searchProducts(Optional<String> name, Optional<Long> categoryId);
 }
