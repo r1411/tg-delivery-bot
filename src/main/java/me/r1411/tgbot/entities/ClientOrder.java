@@ -24,8 +24,9 @@ public class ClientOrder {
     /**
      * Текущий статус заказа
      */
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Integer status;
+    private ClientOrderStatus status;
 
     /**
      * Сумма по заказу
@@ -49,11 +50,11 @@ public class ClientOrder {
         this.client = client;
     }
 
-    public Integer getStatus() {
+    public ClientOrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(ClientOrderStatus status) {
         this.status = status;
     }
 

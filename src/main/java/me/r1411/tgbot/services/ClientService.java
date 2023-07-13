@@ -1,9 +1,9 @@
 package me.r1411.tgbot.services;
 
 import me.r1411.tgbot.entities.Client;
-import me.r1411.tgbot.entities.ClientOrder;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClientService {
     /**
@@ -13,8 +13,14 @@ public interface ClientService {
     List<Client> searchClientsByName(String name);
 
     /**
-     * Получить список заказов клиента
-     * @param id идентификатор клиента
+     * Найти клиента по внешнему ID
+     * @param id Внешний ID клиента
      */
-    List<ClientOrder> getClientOrders(Long id);
+    Optional<Client> findClientByExternalId(Long id);
+
+    /**
+     * Сохранить клиента в БД
+     * @param client Клиент
+     */
+    Client saveClient(Client client);
 }

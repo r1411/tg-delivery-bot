@@ -95,7 +95,7 @@ public class FillingTests {
         for (Map<String, Object> orderEntry : clientOrderEntries) {
             ClientOrder clientOrder = new ClientOrder();
             clientOrder.setClient(client);
-            clientOrder.setStatus((Integer) orderEntry.get("status"));
+            clientOrder.setStatus(ClientOrderStatus.valueOf(orderEntry.get("status").toString()));
             clientOrder.setTotal(BigDecimal.ZERO);
             List<Map<String, Object>> orderProductEntries = (List<Map<String, Object>>) orderEntry.get("products");
             List<OrderProduct> orderProducts = orderProductEntries.stream().map(orderProductEntry -> {
