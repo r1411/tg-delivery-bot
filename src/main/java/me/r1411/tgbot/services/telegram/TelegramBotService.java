@@ -137,21 +137,24 @@ public class TelegramBotService {
             default -> {
                 // Обрабатываем сообщение как имя категории товаров
 
-                Optional<Category> categoryOpt = categoryService.findCategoryByName(msgText);
-                if (categoryOpt.isEmpty()) {
-                    sendTextMessage(chatId, "Нет такой категории!");
-                    return;
-                }
+                categoryService.findCategoryByName(msgText).ifPresentOrElse(
+                        category -> {
+                            if (categoryService.hasChildren(category)) {
+                                Keyboard keyboard = createCategoriesKeyboard(category);
+                                sendKeyboardMessage(chatId, "Выбрана категория: %s".formatted(category.getName()), keyboard);
+                            }
 
-                Category category = categoryOpt.get();
-                if (categoryService.hasChildren(category)) {
-                    Keyboard keyboard = createCategoriesKeyboard(category);
-                    sendKeyboardMessage(chatId, "Выбрана категория: %s".formatted(category.getName()), keyboard);
-                }
+                            List<Product> products = productService.searchProducts(null, category.getId());
+                            if (products.isEmpty()) {
+                                sendTextMessage(chatId, "В данной категории нет товаров");
+                                return;
+                            }
 
-                List<Product> products = productService.searchProducts(null, category.getId());
-                Keyboard keyboard = createInlineProductsKeyboard(products);
-                sendKeyboardMessage(chatId, "Доступные товары:", keyboard);
+                            Keyboard keyboard = createInlineProductsKeyboard(products);
+                            sendKeyboardMessage(chatId, "Доступные товары:", keyboard);
+                        },
+                        () -> sendTextMessage(chatId, "Нет такой категории!")
+                );
             }
         }
     }
@@ -209,15 +212,14 @@ public class TelegramBotService {
             case "addProduct" -> {
                 Long productId = Long.parseLong(parts[1]);
                 Optional<Product> productOpt = productService.findById(productId);
-                if (productOpt.isEmpty()) {
-                    sendTextMessage(chatId, "Неизвестный продукт!");
-                    return;
-                }
 
-                Product product = productOpt.get();
-                ClientOrder clientOrder = clientOrderService.getOrCreateOpenOrder(client);
-                clientOrderService.addProductToOrder(clientOrder, product, 1);
-                sendTextMessage(chatId, "Товар добавлен в заказ");
+                productOpt.ifPresentOrElse(
+                        product -> {
+                            ClientOrder clientOrder = clientOrderService.getOrCreateOpenOrder(client);
+                            clientOrderService.addProductToOrder(clientOrder, product, 1);
+                            sendTextMessage(chatId, "Товар добавлен в заказ");
+                        },
+                        () -> sendTextMessage(chatId, "Неизвестный продукт!"));
             }
             default -> sendTextMessage(chatId, "Неизвестное действие!");
         }
@@ -272,13 +274,16 @@ public class TelegramBotService {
      */
     private boolean checkOrderAndNotify(Client client, ClientOrder order, Long chatId) {
         List<OrderProduct> orderProducts = clientOrderService.getProductsInOrder(order);
-        if (orderProducts.size() == 0) {
+        if (orderProducts.isEmpty()) {
             sendTextMessage(chatId, "Заказ пуст!");
             return false;
         }
 
         if (client.getPhoneNumber() == null || client.getAddress() == null) {
-            sendTextMessage(chatId, "Вы не заполнили все данные о себе!");
+            sendTextMessage(chatId, """
+                    Вы не заполнили все данные о себе!
+                    Телефон: /setphone +79xxxxxxxxx
+                    Адрес: /setaddress <адрес>""");
             return false;
         }
 
