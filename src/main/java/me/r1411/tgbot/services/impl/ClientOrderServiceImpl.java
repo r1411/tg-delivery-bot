@@ -43,15 +43,14 @@ public class ClientOrderServiceImpl implements ClientOrderService {
     public ClientOrder getOrCreateOpenOrder(Client client) {
         Optional<ClientOrder> openOrder = clientOrderRepository
                 .findFirstByStatusAndClientId(ClientOrderStatus.CREATED, client.getId());
-        if (openOrder.isPresent()) {
-            return openOrder.get();
-        }
 
-        ClientOrder order = new ClientOrder();
-        order.setClient(client);
-        order.setStatus(ClientOrderStatus.CREATED);
-        order.setTotal(BigDecimal.ZERO);
-        return clientOrderRepository.save(order);
+        return openOrder.orElseGet(() -> {
+            ClientOrder order = new ClientOrder();
+            order.setClient(client);
+            order.setStatus(ClientOrderStatus.CREATED);
+            order.setTotal(BigDecimal.ZERO);
+            return clientOrderRepository.save(order);
+        });
     }
 
     @Transactional
@@ -64,20 +63,17 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         Optional<OrderProduct> existingOrderProduct = orderProductRepository
                 .findByClientOrderIdAndProductId(order.getId(), product.getId());
 
-        if (existingOrderProduct.isPresent()) {
-            OrderProduct op = existingOrderProduct.get();
-            op.setCountProduct(op.getCountProduct() + count);
-            order.setTotal(order.getTotal().add(product.getPrice().multiply(BigDecimal.valueOf(count))));
-            clientOrderRepository.save(order);
-            return;
-        }
+        OrderProduct op = existingOrderProduct.orElseGet(() -> {
+            OrderProduct newOp = new OrderProduct();
+            newOp.setClientOrder(order);
+            newOp.setProduct(product);
+            newOp.setCountProduct(0);
+            return newOp;
+        });
 
-        OrderProduct newOp = new OrderProduct();
-        newOp.setClientOrder(order);
-        newOp.setProduct(product);
-        newOp.setCountProduct(count);
+        op.setCountProduct(op.getCountProduct() + count);
         order.setTotal(order.getTotal().add(product.getPrice().multiply(BigDecimal.valueOf(count))));
-        orderProductRepository.save(newOp);
+        orderProductRepository.save(op);
         clientOrderRepository.save(order);
     }
 

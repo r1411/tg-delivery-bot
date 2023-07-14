@@ -37,6 +37,8 @@ public class TelegramBotService {
 
     private static final String BUTTON_CLEAR_ORDER_TEXT = "Очистить заказ";
 
+    private static final String BUTTON_CONFIRM_ORDER_TEXT = "Подтвердить заказ";
+
     private final TelegramBot telegramBot;
 
     private final CategoryService categoryService;
@@ -51,7 +53,8 @@ public class TelegramBotService {
     public TelegramBotService(
             CategoryService categoryService,
             ProductService productService,
-            ClientService clientService, ClientOrderService clientOrderService,
+            ClientService clientService,
+            ClientOrderService clientOrderService,
             @Value("${telegram.bot.token}") String botToken) {
         this.categoryService = categoryService;
         this.productService = productService;
@@ -101,33 +104,38 @@ public class TelegramBotService {
 
         switch (msgText) {
             case BUTTON_MAIN_MENU_TEXT -> {
-                Keyboard mainKb = createSubCategoriesKeyboard(null);
+                Keyboard mainKb = createCategoriesKeyboard(null);
                 sendKeyboardMessage(chatId, "Главное меню", mainKb);
             }
             case BUTTON_CLEAR_ORDER_TEXT -> {
                 ClientOrder order = clientOrderService.getOrCreateOpenOrder(client);
                 clientOrderService.clearOrder(order);
-                sendTextMessage(chatId, "Заказ очищен");
+                sendKeyboardMessage(chatId, "Заказ очищен", createCategoriesKeyboard(null));
             }
             case BUTTON_MAKE_ORDER_TEXT -> {
                 ClientOrder order = clientOrderService.getOrCreateOpenOrder(client);
                 List<OrderProduct> orderProducts = clientOrderService.getProductsInOrder(order);
-                if (orderProducts.size() == 0) {
-                    sendTextMessage(chatId, "Заказ пуст!");
+
+                if(!checkOrderAndNotify(client, order, chatId)) {
                     return;
                 }
 
-                if (client.getPhoneNumber() == null || client.getAddress() == null) {
-                    sendTextMessage(chatId, "Вы не заполнили все данные о себе!");
+                String summary = getOrderSummary(order, orderProducts, "Подтвердите заказ:\n\n");
+                Keyboard confirmationKb = createConfirmationKeyboard();
+                sendKeyboardMessage(chatId, summary, confirmationKb);
+            }
+            case BUTTON_CONFIRM_ORDER_TEXT -> {
+                ClientOrder order = clientOrderService.getOrCreateOpenOrder(client);
+
+                if(!checkOrderAndNotify(client, order, chatId)) {
                     return;
                 }
 
-                String summary = getOrderSummary(order, orderProducts);
                 order.setStatus(ClientOrderStatus.FINISHED);
                 clientOrderService.saveClientOrder(order);
-                sendTextMessage(chatId, summary);
-                sendTextMessage(chatId, "Заказ №" + order.getId() +
-                        " подтвержден. Курьер уже едет к Вам по адресу: " + client.getAddress());
+                sendKeyboardMessage(chatId, "Заказ №" + order.getId() +
+                        " подтвержден. Курьер уже едет к Вам по адресу: " + client.getAddress(),
+                        createCategoriesKeyboard(null));
             }
             default -> {
                 // Обрабатываем сообщение как имя категории товаров
@@ -140,7 +148,7 @@ public class TelegramBotService {
 
                 Category category = categoryOpt.get();
                 if (categoryService.hasChildren(category)) {
-                    Keyboard keyboard = createSubCategoriesKeyboard(category);
+                    Keyboard keyboard = createCategoriesKeyboard(category);
                     sendKeyboardMessage(chatId, String.format("Выбрана категория: %s", category.getName()), keyboard);
                 }
 
@@ -156,7 +164,7 @@ public class TelegramBotService {
         String[] parts = msg.text().split(" ");
         switch (parts[0]) {
             case "/start" -> {
-                Keyboard startKb = createSubCategoriesKeyboard(null);
+                Keyboard startKb = createCategoriesKeyboard(null);
                 sendKeyboardMessage(chatId, "Наполняйте заказ и нажимайте Оформить!", startKb);
 
                 if (client.getPhoneNumber() == null) {
@@ -232,8 +240,8 @@ public class TelegramBotService {
 
     // Клавиатуры
 
-    private Keyboard createSubCategoriesKeyboard(@Nullable Category parent) {
-        List<Category> subCategories = categoryService.getSubCategories(parent);
+    private Keyboard createCategoriesKeyboard(@Nullable Category parent) {
+        List<Category> subCategories = categoryService.getCategories(parent);
         String[] topRow = subCategories.stream().map(Category::getName).toArray(String[]::new);
         ReplyKeyboardMarkup result = new ReplyKeyboardMarkup(topRow);
 
@@ -256,13 +264,40 @@ public class TelegramBotService {
         return keyboard;
     }
 
+    private Keyboard createConfirmationKeyboard() {
+        ReplyKeyboardMarkup result = new ReplyKeyboardMarkup(BUTTON_CLEAR_ORDER_TEXT, BUTTON_MAIN_MENU_TEXT);
+        result.addRow(BUTTON_CONFIRM_ORDER_TEXT);
+        return result;
+    }
+
+    /**
+     * Проверить возможность оформить текущий заказ;
+     * если нет, уведомить пользователя о причинах
+     * @param client Клиент
+     * @param order Заказ клиента
+     * @param chatId ID чата с клиентом
+     */
+    private boolean checkOrderAndNotify(Client client, ClientOrder order, Long chatId) {
+        List<OrderProduct> orderProducts = clientOrderService.getProductsInOrder(order);
+        if (orderProducts.size() == 0) {
+            sendTextMessage(chatId, "Заказ пуст!");
+            return false;
+        }
+
+        if (client.getPhoneNumber() == null || client.getAddress() == null) {
+            sendTextMessage(chatId, "Вы не заполнили все данные о себе!");
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Вернуть пользователя или зарегать, если его еще нет в базе
      * @param chat Чат с пользователем
      */
     private Client getOrRegisterClient(Chat chat) {
-        Optional<Client> client = clientService.findClientByExternalId(chat.id());
-        if (client.isEmpty()) {
+        return clientService.findClientByExternalId(chat.id()).orElseGet(() -> {
             Client newClient = new Client();
             newClient.setExternalId(chat.id());
             String fullName = chat.firstName();
@@ -271,9 +306,7 @@ public class TelegramBotService {
             }
             newClient.setFullName(fullName);
             return clientService.saveClient(newClient);
-        } else {
-            return client.get();
-        }
+        });
     }
 
 
@@ -281,21 +314,21 @@ public class TelegramBotService {
      * Получить текст со всеми позициями и итоговой ценой
      * @param orderProducts Список позиций
      */
-    private String getOrderSummary(ClientOrder order, List<OrderProduct> orderProducts) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Чек по заказу: \n\n");
-        orderProducts.forEach(
-                op -> sb.append(op.getProduct().getName())
-                        .append(" ")
-                        .append(op.getCountProduct())
-                        .append("x")
-                        .append(op.getProduct().getPrice())
-                        .append(" = ")
-                        .append(op.getProduct().getPrice().multiply(BigDecimal.valueOf(op.getCountProduct())))
-                        .append(" ₽")
-                        .append("\n")
-        );
-        sb.append("\n").append("Итого: ").append(order.getTotal()).append(" ₽");
-        return sb.toString();
+    private String getOrderSummary(ClientOrder order, List<OrderProduct> orderProducts, String prefix) {
+        return orderProducts.stream()
+                .map(op -> {
+                    var product = op.getProduct();
+                    var count = op.getCountProduct();
+                    var price = op.getProduct().getPrice();
+                    return "%s %dx%.2f = %.2f ₽".formatted(
+                            product.getName(),
+                            count,
+                            price,
+                            price.multiply(BigDecimal.valueOf(count))
+                    );
+                })
+                .collect(Collectors.joining("\n",
+                        prefix,
+                        "\n\nИтого: %.2f ₽".formatted(order.getTotal())));
     }
 }

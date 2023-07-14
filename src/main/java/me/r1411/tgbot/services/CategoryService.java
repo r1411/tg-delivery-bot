@@ -11,7 +11,7 @@ public interface CategoryService {
      * Найти все подкатегории у категории. Если передан null, возвращает категории верхнего уровня
      * @param parent Родительская категория
      */
-    List<Category> getSubCategories(@Nullable Category parent);
+    List<Category> getCategories(@Nullable Category parent);
 
     /**
      * Поиск категории по имени без учета регистра

@@ -20,7 +20,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> getSubCategories(@Nullable Category parent) {
+    public List<Category> getCategories(@Nullable Category parent) {
         if (parent == null) {
             return categoryRepository.findAllByParentIsNull();
         }

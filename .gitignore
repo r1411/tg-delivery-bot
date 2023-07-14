@@ -66,6 +66,3 @@ mvnw
 *.mv.db
 *.lock.db
 *.trace.db
-
-# Файл с dev переменными
-/src/main/resources/application-dev.properties
