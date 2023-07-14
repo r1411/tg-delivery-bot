@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -73,8 +72,6 @@ public class TelegramBotService {
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
-
-    // Обработка ответов пользователя
 
     private void processUpdate(Update update) {
         if (update.message() != null) {
@@ -131,7 +128,7 @@ public class TelegramBotService {
                     return;
                 }
 
-                order.setStatus(ClientOrderStatus.FINISHED);
+                order.setStatus(ClientOrderStatus.IN_DELIVERY);
                 clientOrderService.saveClientOrder(order);
                 sendKeyboardMessage(chatId, "Заказ №" + order.getId() +
                         " подтвержден. Курьер уже едет к Вам по адресу: " + client.getAddress(),
@@ -149,7 +146,7 @@ public class TelegramBotService {
                 Category category = categoryOpt.get();
                 if (categoryService.hasChildren(category)) {
                     Keyboard keyboard = createCategoriesKeyboard(category);
-                    sendKeyboardMessage(chatId, String.format("Выбрана категория: %s", category.getName()), keyboard);
+                    sendKeyboardMessage(chatId, "Выбрана категория: %s".formatted(category.getName()), keyboard);
                 }
 
                 List<Product> products = productService.searchProducts(null, category.getId());
@@ -161,7 +158,7 @@ public class TelegramBotService {
 
     private void processCommand(Client client, Message msg) {
         Long chatId = msg.chat().id();
-        String[] parts = msg.text().split(" ");
+        String[] parts = msg.text().split(" ", 2);
         switch (parts[0]) {
             case "/start" -> {
                 Keyboard startKb = createCategoriesKeyboard(null);
@@ -181,7 +178,7 @@ public class TelegramBotService {
                     return;
                 }
 
-                String address = Arrays.stream(parts).skip(1).collect(Collectors.joining(" "));
+                String address = parts[1];
                 client.setAddress(address);
                 clientService.saveClient(client);
                 sendTextMessage(chatId, "Ваш адрес сохранен");
@@ -226,8 +223,6 @@ public class TelegramBotService {
         }
     }
 
-    // Отправка ответов пользователю
-
     private void sendTextMessage(Long chatId, String msg) {
         SendMessage sendMessage = new SendMessage(chatId, msg);
         telegramBot.execute(sendMessage);
@@ -237,8 +232,6 @@ public class TelegramBotService {
         SendMessage sendMessage = new SendMessage(chatId, msg).replyMarkup(keyboard);
         telegramBot.execute(sendMessage);
     }
-
-    // Клавиатуры
 
     private Keyboard createCategoriesKeyboard(@Nullable Category parent) {
         List<Category> subCategories = categoryService.getCategories(parent);
@@ -293,7 +286,7 @@ public class TelegramBotService {
     }
 
     /**
-     * Вернуть пользователя или зарегать, если его еще нет в базе
+     * Вернуть пользователя или создать нового, если его еще нет в базе
      * @param chat Чат с пользователем
      */
     private Client getOrRegisterClient(Chat chat) {
