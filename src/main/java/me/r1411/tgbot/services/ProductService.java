@@ -4,6 +4,7 @@ import me.r1411.tgbot.entities.Product;
 import org.springframework.lang.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductService {
     /**
@@ -25,4 +26,10 @@ public interface ProductService {
      * @param categoryId ID категории
      */
     List<Product> searchProducts(@Nullable String name, @Nullable Long categoryId);
+
+    /**
+     * Найти продукт по ID
+     * @param id ID продукта
+     */
+    Optional<Product> findById(Long id);
 }

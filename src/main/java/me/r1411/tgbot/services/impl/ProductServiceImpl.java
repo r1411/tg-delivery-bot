@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,5 +35,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> searchProducts(@Nullable String name, @Nullable Long categoryId) {
         return productRepository.search(name, categoryId);
+    }
+
+    @Override
+    public Optional<Product> findById(Long id) {
+        return productRepository.findById(id);
     }
 }

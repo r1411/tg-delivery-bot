@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Репозиторий для сущностей Клиент
@@ -16,4 +17,10 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
      * @param name Подстрока полного имени
      */
     List<Client> findAllByFullNameContainingIgnoreCase(String name);
+
+    /**
+     * Найти пользователя по внешнему ID
+     * @param id Внешний ID
+     */
+    Optional<Client> findByExternalId(Long id);
 }

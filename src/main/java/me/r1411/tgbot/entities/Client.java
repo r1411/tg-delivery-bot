@@ -29,13 +29,13 @@ public class Client {
     /**
      * Номер телефона клиента
      */
-    @Column(nullable = false, length = 15)
+    @Column(length = 15)
     private String phoneNumber;
 
     /**
      * Адрес клиента
      */
-    @Column(nullable = false, length = 400)
+    @Column(length = 400)
     private String address;
 
     public Long getId() {

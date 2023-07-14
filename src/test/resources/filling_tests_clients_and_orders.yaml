@@ -3,7 +3,7 @@
   externalId: 123456789
   phoneNumber: '+79995554433'
   orders:
-    - status: 0
+    - status: FINISHED
       products:
         - id: 1
           count: 1
@@ -12,7 +12,7 @@
         - id: 3
           count: 2
 
-    - status: 1
+    - status: FINISHED
       products:
         - id: 2
           count: 10
@@ -21,7 +21,7 @@
         - id: 4
           count: 2
 
-    - status: 2
+    - status: CREATED
       products:
         - id: 3
           count: 1
@@ -36,7 +36,7 @@
   externalId: 777777777
   phoneNumber: '+79990001122'
   orders:
-    - status: 3
+    - status: FINISHED
       products:
         - id: 10
           count: 1
@@ -45,7 +45,7 @@
         - id: 12
           count: 1
 
-    - status: 3
+    - status: FINISHED
       products:
         - id: 1
           count: 1
@@ -60,7 +60,7 @@
   externalId: 444777551
   phoneNumber: '+79993336699'
   orders:
-    - status: 0
+    - status: FINISHED
       products:
         - id: 20
           count: 1
@@ -69,7 +69,7 @@
         - id: 28
           count: 2
 
-    - status: 3
+    - status: CREATED
       products:
         - id: 30
           count: 1
